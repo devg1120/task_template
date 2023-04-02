@@ -1,0 +1,93 @@
+
+version: '3'
+
+env:
+  SLEEP1: 1
+  SLEEP2: 2
+
+
+includes:
+  backend:
+    taskfile: ./taskfiles/backend.yml
+    vars:
+      DOCKER_IMAGE: backend_image
+
+  frontend:
+    taskfile: ./taskfiles/frontend.yml
+    vars:
+      DOCKER_IMAGE: frontend_image
+
+tasks:
+  default:
+    dir:  ./subdir
+    cmds: 
+      - bash ./test01.sh
+      - bash ./test02.sh
+      # nest task
+      - echo "####################_LOCAL-TASK_####################"
+      - task: local-task
+      - echo "####################_SLEEP-TASK_####################"
+      - task: sleep-task
+      - echo "####################_PARALLEL-TASK_####################"
+      - echo parallel-start
+      - task: parallel-task
+      - echo parallel-end
+      - echo "####################_TAUCH-TASK_####################"
+      - task: tauch-task
+      - echo "####################_PRECON-TASK_####################"
+      - task: preconditions-task
+      - echo "####################_INCLUDE-TASK_###################"
+      - task: backend
+      - task: frontend
+      - echo "####################_LAST-TASK_####################"
+      - task: last-task
+
+  local-task:
+    cmds: 
+      - bash ./test01.sh 
+      - bash ./test02.sh 
+
+  sleep-task:
+    dir:  ./sleep-task
+    cmds: 
+      - bash ./test01.sh $SLEEP1
+      - bash ./test02.sh $SLEEP2
+
+  parallel-task:
+    dir:  ./parallel-task
+    deps: [job1, job2, job3]
+
+  job1:
+    dir:  ./parallel-task
+    cmds: 
+      - bash ./job1.sh 
+
+  job2:
+    dir:  ./parallel-task
+    cmds: 
+      - bash ./job2.sh 
+
+  job3:
+    dir:  ./parallel-task
+    cmds: 
+      - bash ./job3.sh 
+
+  tauch-task:
+    dir:  ./tauch-task
+    cmds: 
+      - bash ./tauch.sh 
+      - test -f ./test01.txt
+      - test -f ./test02.txt
+      - test -f ./test03.txt
+
+  preconditions-task:
+    dir: ./preconditions-task
+    preconditions:
+      - test  -f ./test01.txt
+    cmds:
+      - touch test02.txt
+
+  last-task:
+    cmds: 
+      - echo `pwd`
+      - echo all task end
