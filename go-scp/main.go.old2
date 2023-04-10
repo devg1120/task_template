@@ -1,0 +1,118 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	scp "go-scp/scp"
+	"go-scp/scp/auth"
+	"golang.org/x/crypto/ssh"
+	"os"
+	"flag"
+)
+
+type Target struct {
+	ip       string
+	port     string
+	username string
+	passwd   string
+}
+
+type Operation string
+
+const (
+	RemoteToLocal Operation = "RemoteToLocal"
+	LocalToRemote Operation = "LocalToRemote"
+)
+
+type Session struct {
+	op  Operation
+	src string
+	dst string
+}
+
+func main() {
+
+	t := Target{
+		ip:       "127.0.0.1",
+		port:     "22",
+		username: "devg1120",
+		passwd:   "sakiko1120",
+	}
+
+	s := Session{
+		//op: RemoteToLocal,
+		op:  LocalToRemote,
+		src: "/var/tmp/test3.txt",
+		dst: "/var/tmp/test4.txt",
+	}
+
+	clientConfig, _ := auth.PasswordKey(t.username, t.passwd, ssh.InsecureIgnoreHostKey())
+
+	// Create a new SCP client
+	//client := scp.NewClient("10.0.2.101:22", &clientConfig)
+	client := scp.NewClient(t.ip+":"+t.port, &clientConfig)
+
+	// Connect to the remote server
+	err := client.Connect()
+	if err != nil {
+		fmt.Println("Couldn't establish a connection to the remote server ", err)
+		return
+	}
+
+	switch s.op {
+	case LocalToRemote:
+		/*
+			  SCP
+		               local     =>  remote
+		*/
+
+		src_filename := s.src
+		dst_filename := s.dst
+		f, err := os.Open(src_filename)
+
+		if err != nil {
+			fmt.Println(err)
+			fmt.Printf("fail to open file:%s\n", src_filename)
+			os.Exit(3)
+
+		}
+
+		defer client.Close()
+
+		defer f.Close()
+
+		err = client.CopyFromFile(context.Background(), *f, dst_filename, "0655")
+
+		if err != nil {
+			fmt.Println("Error while copying file ", err)
+		}
+
+	case RemoteToLocal:
+		/*
+			  SCP
+		               remote     =>  local
+		*/
+
+		src_filename := s.src
+		dst_filename := s.dst
+		f, err := os.Create(dst_filename)
+
+		if err != nil {
+			fmt.Println(err)
+			fmt.Printf("fail to open file:%s\n", dst_filename)
+			os.Exit(3)
+
+		}
+
+		defer client.Close()
+
+		defer f.Close()
+
+		//err = client.CopyFromFile(context.Background(), *f, dst_filename, "0655")
+		err = client.CopyFromRemote(context.Background(), f, src_filename)
+
+		if err != nil {
+			fmt.Println("Error while copying file ", err)
+		}
+	}
+}
