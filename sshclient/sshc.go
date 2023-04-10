@@ -10,9 +10,11 @@ import (
 
 func main() {
     config := &ssh.ClientConfig{
-        User: "devg1120",
+        //User: "devg1120",
+        User: "root",
         Auth: []ssh.AuthMethod{
-            ssh.Password("sakiko1120"),
+            //ssh.Password("sakiko1120"),
+            ssh.Password("Hyogo#2o2z"),
         },
         HostKeyCallback: ssh.InsecureIgnoreHostKey(), // password認証は設定
     }

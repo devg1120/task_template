@@ -2,6 +2,7 @@
 main
 ssh
 sshc
+scpc
 *.exe
 *.exe~
 *.dll
