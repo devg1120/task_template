@@ -1,0 +1,39 @@
+
+
+
+# REMOTE =>  LOCAL
+
+./main root%Hyogo#2o2z@10.0.2.101:/etc/passwd /var/tmp/test2.txt
+
+
+
+# LOCAL => REMOTE
+
+./main /etc/fstab  root%Hyogo#2o2z@10.0.2.101:/var/tmp/test3.txt
+
+
+# REMOTE => REMOTE
+
+
+./main root%Hyogo#2o2z@10.0.2.101:/etc/passwd  root%Hyogo#2o2z@10.0.2.103:/var/tmp/test5
+
+
+
+
+
+
+
+
+./main  aaa_path bbb#pppp@10.1.1.1:/path
+
+./main  /var/tmp/testA/xxx  root%Hyogo#2o2l@127.0.0.1:/var/tmp/testB/xxx
+
+
+
+./main  bbb#pppp@10.1.1.1:/path aaa_path
+
+
+
+
+
+
