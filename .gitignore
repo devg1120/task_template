@@ -3,6 +3,10 @@ main
 ssh
 sshc
 scpc
+L2R
+R2L
+R2R
+basic
 *.exe
 *.exe~
 *.dll
